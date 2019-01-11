@@ -23,12 +23,15 @@ class MainActivity : AppCompatActivity() {
 
         userService.doLoginAsync(username, password) { user ->
 
-            userService.requestCurrentFriendsAsync(user) { friends ->
+            userService.requestCurrentFriendsAsync(user) { currentFriends ->
 
-                val finalUser = user.copy(friends = friends)
-                toast("User ${finalUser.name} has ${finalUser.friends.size} friends")
+                userService.requestSuggestedFriendsAsync(user) { suggestedFriends ->
+                    val finalUser = user.copy(friends = currentFriends + suggestedFriends)
+                    toast("User ${finalUser.name} has ${finalUser.friends.size} friends")
 
-                progress.visibility = View.GONE
+                    progress.visibility = View.GONE
+                }
+
             }
 
         }
