@@ -19,22 +19,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun doLogin(username: String, password: String) {
 
-        progress.visibility = View.VISIBLE
+        coroutine {
+            progress.visibility = View.VISIBLE
 
-        userService.doLoginAsync(username, password) { user ->
+            val user = suspended { userService.doLogin(username, password) }
+            val currentFriends = suspended { userService.requestCurrentFriends(user) }
 
-            userService.requestCurrentFriendsAsync(user) { currentFriends ->
+            val finalUser = user.copy(friends = currentFriends)
+            toast("User ${finalUser.name} has ${finalUser.friends.size} friends")
 
-                userService.requestSuggestedFriendsAsync(user) { suggestedFriends ->
-                    val finalUser = user.copy(friends = currentFriends + suggestedFriends)
-                    toast("User ${finalUser.name} has ${finalUser.friends.size} friends")
-
-                    progress.visibility = View.GONE
-                }
-
-            }
-
+            progress.visibility = View.GONE
         }
-
     }
 }
