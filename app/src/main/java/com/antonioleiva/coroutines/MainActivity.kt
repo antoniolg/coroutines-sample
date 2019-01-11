@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity() {
@@ -27,9 +24,10 @@ class MainActivity : AppCompatActivity() {
             progress.visibility = View.VISIBLE
 
             val user = withContext(Dispatchers.IO) { userService.doLogin(username, password) }
-            val currentFriends = withContext(Dispatchers.IO) { userService.requestCurrentFriends(user) }
+            val currentFriends = async(Dispatchers.IO) { userService.requestCurrentFriends(user) }
+            val suggestedFriends = async(Dispatchers.IO) { userService.requestSuggestedFriends(user) }
 
-            val finalUser = user.copy(friends = currentFriends)
+            val finalUser = user.copy(friends = currentFriends.await() + suggestedFriends.await())
             toast("User ${finalUser.name} has ${finalUser.friends.size} friends")
 
             progress.visibility = View.GONE
