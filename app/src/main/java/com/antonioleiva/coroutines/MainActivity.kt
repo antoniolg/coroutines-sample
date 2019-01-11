@@ -6,21 +6,28 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import org.jetbrains.anko.toast
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
+    private lateinit var job: Job
 
     private val userService = UserService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        job = Job()
 
         login.setOnClickListener { doLogin(user.text.toString(), password.text.toString()) }
     }
 
     private fun doLogin(username: String, password: String) {
 
-        GlobalScope.launch(Dispatchers.Main) {
+        launch {
             progress.visibility = View.VISIBLE
 
             val user = withContext(Dispatchers.IO) { userService.doLogin(username, password) }
@@ -32,5 +39,10 @@ class MainActivity : AppCompatActivity() {
 
             progress.visibility = View.GONE
         }
+    }
+
+    override fun onDestroy() {
+        job.cancel()
+        super.onDestroy()
     }
 }
