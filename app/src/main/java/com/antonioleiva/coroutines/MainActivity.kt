@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.toast
 
@@ -21,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun doLogin(username: String, password: String) {
 
-        coroutine(Dispatchers.Main) {
+        GlobalScope.launch(Dispatchers.Main) {
             progress.visibility = View.VISIBLE
 
             val user = withContext(Dispatchers.IO) { userService.doLogin(username, password) }
