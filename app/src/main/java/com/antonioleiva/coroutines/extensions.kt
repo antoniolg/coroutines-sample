@@ -7,5 +7,3 @@ import kotlin.coroutines.CoroutineContext
 
 fun coroutine(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit) =
     GlobalScope.launch(context, block = block)
-
-suspend fun <T> suspended(block: suspend CoroutineScope.() -> T) = withContext(Dispatchers.Default, block)
